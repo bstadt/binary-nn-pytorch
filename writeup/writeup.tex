@@ -1,0 +1,88 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{array}
+\setlength{\extrarowheight}{.5ex}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\graphicspath{./}
+\usepackage[margin=1in]{geometry}
+
+\makeatletter
+\newcommand*{\shifttext}[2]{%
+  \settowidth{\@tempdima}{#2}%
+  \makebox[\@tempdima]{\hspace*{#1}#2}%
+}
+\newcommand{\hella}{\bBigg@{4}}
+\newcommand{\hellla}{\bBigg@{5}}
+\newcommand{\indicate}{\text{I} \shifttext{-3pt}{I}}
+\newcommand{\msp}{\text{ }}
+\makeatother
+
+\title{Deep Learning Final Project: Binary Neural Networks}
+\author{Brandon Duderstadt}
+
+\begin{document}
+  \maketitle
+  \section{Motivation and Problem Statement}
+
+    Deep neural networks are currently the top performing algorithm on a wide rangegg of artificial intelligence tasks, ranging from object recognition, to complex system control, to natural language processing.
+    Many of these tasks are critical components of real time robotic systems, and thus, deep neural networks have become increasingly popular in the robotics community.
+    However, these networks come with a major drawback; their computational cost at inference time is prohibitively high.
+    This renders the networks very slow on many embedded robotics applications, and unfit for use in scenarios requiring low resource, real time computation.\\[6pt]
+
+    The main computation taking place in these networks is the multiply-accumulate operation, as each artificial neuron essentially computes a weighted sum of its inputs.
+    Naturally, a reduction in the time cost of this operation would result in a huge savings in total network inference complexity.
+    In particular, if the weights of each artificial neuron were constrained to either -1 or 1, the 32-bit floating point multiply-accumulate operations taking place at each neuron could be replaced with a much faster 1-bit XNOR-count operation.\\[6pt]
+
+    Unfortunately, the optimization problem associated with solving for these weights is a 0-1 integer program, which is NP-Complete. This renders direct optimization methods ineffective. Furthermore, traditional nonconvex optimization methods, such as gradient descent, are difficult to apply here, since the XNOR operation does not have a continuous derivative. The resulting question is thus: \\[6pt]
+    \textbf{How can one train a binary neural netowrk such that they can take advantage of the speed increase related with using XNOR-accumulate operations as opposed to multiply-accumulate operations at inference time?}
+
+  \section{Prior Work}
+    Courbariaux et. al (2016) \cite{bnn} present the current state of the art algorithm for learning these weights through a series of train-time approximations and weight-clipping. I will use this algorithm as a basis for my investigations.
+
+  \section{Datasets}
+    For my investigations, I will be using the MNIST \cite{mnist} and Fasion-MNIST \cite{fashionmnist} datasets. I have selcted these datasets since they are two of the canonical benchmark datasets for deep learning tasks.
+
+  \section{Methods}
+    The main module that I will be using in my investigations will be a \textbf{Binary Linear Unit} (BLU). The algortihm below defines the behavior of this unit during the forward pass:\\[6pt]
+
+    \begin{algorithm}
+      \caption{Binary Linear Unit Forward Pass}\label{BLUfp}
+      \begin{algorithmic}
+        \Require{$X$ is the input tensor}
+        \Require{$W$ is the non-binary layer weight matrix}
+        \Require{$B$ is the non-binary layer bias matrix}
+        \\
+        \Function{Forward}{$X$, $W$, $B$}
+          \State $W_b \leftarrow \text{Sign}(W)$
+          \State $B_b \leftarrow \text{Sign}(B)$
+          \State $X \leftarrow xW_b + B_b$
+          \State $X \leftarrow \text{Sign}(X)$
+          \State \Return $X$
+        \EndFunction
+      \end{algorithmic}
+    \end{algorithm}
+
+    The main idea to note here is that, during training time, the network stores its weights as 32-bit floats.
+    However, during the training time forward pass, the network only \textbf{uses} the signs of the weights.
+    In this way, the inference step of the BLU requires only binary weights.\\[6pt]
+
+    One drawback of the above function is that it makes heavy use of the sign operation, which has derivative 0 almost everywhere. Thus, the backward pass of the BLU ignores the presence of the sign function, and passes the gradient straight through to the next operation in the operation tree. While this does not approximate the true gradient of the function, it allows the signal from backpropegation to continue through the network without dying out at the sign operations.
+
+
+  \section{Experiments}
+
+
+  \bibliography{bib}{}
+  \bibliographystyle{plain}
+
+\end{document}

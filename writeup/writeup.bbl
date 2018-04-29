@@ -1,0 +1,20 @@
+\begin{thebibliography}{1}
+
+\bibitem{bnn}
+Matthieu Courbariaux and Yoshua Bengio.
+\newblock Binarynet: Training deep neural networks with weights and activations
+  constrained to +1 or -1.
+\newblock {\em CoRR}, abs/1602.02830, 2016.
+
+\bibitem{mnist}
+Yann LeCun and Corinna Cortes.
+\newblock {MNIST} handwritten digit database.
+\newblock 2010.
+
+\bibitem{fashionmnist}
+Han Xiao, Kashif Rasul, and Roland Vollgraf.
+\newblock Fashion-mnist: a novel image dataset for benchmarking machine
+  learning algorithms.
+\newblock {\em CoRR}, abs/1708.07747, 2017.
+
+\end{thebibliography}
