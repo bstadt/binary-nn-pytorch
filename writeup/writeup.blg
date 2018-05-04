@@ -4,45 +4,45 @@ The top-level auxiliary file: writeup.aux
 The style file: plain.bst
 Database file #1: bib.bib
 Warning--empty journal in mnist
-You've used 3 entries,
+You've used 2 entries,
             2118 wiz_defined-function locations,
-            513 strings with 4409 characters,
-and the built_in function-call counts, 778 in all, are:
-= -- 72
-> -- 44
+            508 strings with 4253 characters,
+and the built_in function-call counts, 503 in all, are:
+= -- 46
+> -- 26
 < -- 0
-+ -- 17
-- -- 14
-* -- 45
-:= -- 151
-add.period$ -- 9
-call.type$ -- 3
-change.case$ -- 16
++ -- 10
+- -- 8
+* -- 27
+:= -- 99
+add.period$ -- 6
+call.type$ -- 2
+change.case$ -- 10
 chr.to.int$ -- 0
-cite$ -- 4
-duplicate$ -- 30
-empty$ -- 52
-format.name$ -- 14
-if$ -- 151
+cite$ -- 3
+duplicate$ -- 20
+empty$ -- 35
+format.name$ -- 8
+if$ -- 97
 int.to.chr$ -- 0
-int.to.str$ -- 3
-missing$ -- 3
-newline$ -- 18
-num.names$ -- 6
-pop$ -- 14
+int.to.str$ -- 2
+missing$ -- 2
+newline$ -- 13
+num.names$ -- 4
+pop$ -- 10
 preamble$ -- 1
-purify$ -- 13
+purify$ -- 8
 quote$ -- 0
-skip$ -- 25
+skip$ -- 17
 stack$ -- 0
-substring$ -- 15
-swap$ -- 2
+substring$ -- 10
+swap$ -- 1
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 12
+type$ -- 8
 warning$ -- 1
-while$ -- 6
-width$ -- 4
-write$ -- 33
+while$ -- 4
+width$ -- 3
+write$ -- 22
 (There was 1 warning)

@@ -68,9 +68,11 @@ class ClippedBinaryLinearFunction(Function):
 
         grad_input = grad_output.mm(w)
         grad_weight = grad_output.t().mm(input_tensor)
-        grad_weight = grad_weight.clamp(min=-1, max=1)
+        grad_weight[grad_weight > 0] = 0
+        #grad_weight = grad_weight.clamp(min=-1, max=1)
         grad_bias = grad_output.sum(0).squeeze(0)
-        grad_bias = grad_bias.clamp(min=-1, max=1)
+        grad_bias[grad_bias > 0] = 0
+        #grad_bias = grad_bias.clamp(min=-1, max=1)
 
         if not b is None:
             return grad_input, grad_weight, grad_bias
@@ -137,10 +139,12 @@ class BinaryNet(nn.Module):
                                      2048,
                                      use_bias=True,
                                      clip_grads=use_grad_clip)
+        self.dropout1 = nn.Dropout(.2)
         self.bfc2 = BinaryLinearUnit(2048,
                                      2048,
                                      use_bias=True,
                                      clip_grads=use_grad_clip)
+        self.dropout2 = nn.Dropout(.2)
         self.bfc3 = BinaryLinearUnit(2048,
                                      10,
                                      use_bias=True,
@@ -154,12 +158,64 @@ class BinaryNet(nn.Module):
         x = self.bfc1(x)
 
         if self.use_dropout:
-            x = F.dropout(x)
+            x = self.dropout1(x)
 
         x = self.bfc2(x)
 
         if self.use_dropout:
-            x = F.dropout(x)
+            x = self.dropout2(x)
+
+        x = self.bfc3(x)
+        x = self.smw(x)
+        x = self.sm(x)
+        return x
+
+
+    def clip(self):
+        self.bfc1.clip()
+        self.bfc2.clip()
+        self.bfc3.clip()
+
+
+class BigBinaryNet(nn.Module):
+
+    def __init__(self,
+                 use_dropout=False,
+                 use_grad_clip=False):
+        super(BigBinaryNet, self).__init__()
+
+        self.use_dropout = use_dropout
+
+        self.inbn = nn.BatchNorm1d(784)
+        self.bfc1 = BinaryLinearUnit(784,
+                                     4096,
+                                     use_bias=True,
+                                     clip_grads=use_grad_clip)
+        self.dropout1 = nn.Dropout()
+        self.bfc2 = BinaryLinearUnit(4096,
+                                     4096,
+                                     use_bias=True,
+                                     clip_grads=use_grad_clip)
+        self.dropout2 = nn.Dropout()
+        self.bfc3 = BinaryLinearUnit(4096,
+                                     10,
+                                     use_bias=True,
+                                     clip_grads=use_grad_clip)
+
+        self.smw = nn.Linear(10, 10)
+        self.sm =  nn.Softmax()
+
+    def forward(self, input_var):
+        x = self.inbn(input_var)
+        x = self.bfc1(x)
+
+        if self.use_dropout:
+            x = self.dropout1(x)
+
+        x = self.bfc2(x)
+
+        if self.use_dropout:
+            x = self.dropout2(x)
 
         x = self.bfc3(x)
         x = self.smw(x)

@@ -11,10 +11,4 @@ Yann LeCun and Corinna Cortes.
 \newblock {MNIST} handwritten digit database.
 \newblock 2010.
 
-\bibitem{fashionmnist}
-Han Xiao, Kashif Rasul, and Roland Vollgraf.
-\newblock Fashion-mnist: a novel image dataset for benchmarking machine
-  learning algorithms.
-\newblock {\em CoRR}, abs/1708.07747, 2017.
-
 \end{thebibliography}

@@ -15,12 +15,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from tqdm import tqdm
-from binary import BinaryNet
 from torchvision import datasets
 from torchvision import transforms
 from torch.autograd import Variable
 from torch.optim import lr_scheduler
 from tensorboardX import SummaryWriter
+from binary import BinaryNet, BigBinaryNet
 
 
 #Command Line Args
@@ -83,6 +83,9 @@ parser.add_argument('--dropout', type=bool, default=False, metavar='DPT')
 parser.add_argument('--gradclip', type=bool, default=False, metavar='CGD',
                     help='Cancel gradients in BLU when magnitude is > 1 (default: False)')
 
+parser.add_argument('--transform', type=bool, default=False, metavar='TFM',
+                    help='Use data augmentation transforms (default: False)')
+
 required = object()
 
 
@@ -111,29 +114,28 @@ def prepareDatasetAndLogging(args):
     dataset_dir = os.path.join(args.data_dir, args.dataset)
     training_run_dir = os.path.join(args.data_dir, training_run_name)
 
-    '''
-    train_dataset = DatasetClass(dataset_dir,
-                                 train=True,
-                                 download=True,
-                                 transform=transforms.Compose([
-                                    transforms.RandomHorizontalFlip(),
-                                    transforms.RandomRotation(5),
-                                    transforms.ColorJitter(),
-                                    transforms.RandomResizedCrop(28, scale=(0.9, 1.0)),
-                                    transforms.ToTensor(),
-                                    transforms.Normalize((0.1307,), (0.3081,))
-                                    ])
-                                )
-    '''
-
-    train_dataset = DatasetClass(dataset_dir,
-                                 train=True,
-                                 download=True,
-                                 transform=transforms.Compose([
-                                    transforms.ToTensor(),
-                                    transforms.Normalize((0.1307,), (0.3081,))
-                                    ])
-                                )
+    if args.transform:
+        print('Using Data Augmentation!')
+        train_dataset = DatasetClass(dataset_dir,
+                                     train=True,
+                                     download=True,
+                                     transform=transforms.Compose([
+                                        transforms.RandomRotation(5),
+                                        transforms.ColorJitter(),
+                                        transforms.RandomResizedCrop(28, scale=(0.9, 1.0)),
+                                        transforms.ToTensor(),
+                                        transforms.Normalize((0.1307,), (0.3081,))
+                                        ])
+                                    )
+    else:
+        train_dataset = DatasetClass(dataset_dir,
+                                     train=True,
+                                     download=True,
+                                     transform=transforms.Compose([
+                                        transforms.ToTensor(),
+                                        transforms.Normalize((0.1307,), (0.3081,))
+                                        ])
+                                    )
 
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=args.batch_size,
@@ -187,6 +189,9 @@ def chooseModel(args, cuda=True):
     if model_name == 'default':
         model = BinaryNet(use_dropout=args.dropout,
                           use_grad_clip=args.gradclip)
+    elif model_name == 'big':
+        model = BigBinaryNet(use_dropout=args.dropout,
+                              use_grad_clip=args.gradclip)
     else:
         raise ValueError('Unknown model type: ' + model_name)
     if args.cuda:
@@ -376,4 +381,5 @@ def run_experiment(args):
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    print(args)
     run_experiment(args)
